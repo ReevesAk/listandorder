@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: List and delivery
+  version: 1.0.0
+  description: This is a self service that helps busy professionals automate their
+    grocery shopping
+paths:
+  /listandorder_api/v1/auth/login/:
+    post:
+      operationId: listandorder_api_v1_auth_login_create
+      tags:
+      - listandorder_api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /listandorder_api/v1/auth/sign_up/:
+    post:
+      operationId: listandorder_api_v1_auth_sign_up_create
+      tags:
+      - listandorder_api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUp'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignUp'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignUp'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignUp'
+          description: ''
+components:
+  schemas:
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          minLength: 3
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 68
+          minLength: 6
+      required:
+      - email
+      - password
+    SignUp:
+      type: object
+      description: Serailizers for our User first time registration
+      properties:
+        username:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 68
+          minLength: 6
+        password2:
+          type: string
+          writeOnly: true
+          maxLength: 68
+          minLength: 6
+      required:
+      - email
+      - password
+      - password2
+      - username
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
