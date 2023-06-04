@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 # In project imports.
 from .serializers import SignUpSerializer, LoginSerializer
@@ -12,6 +14,18 @@ from .models import User
 
 
 # Create your views here.
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        return token
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
 
 # Register handles the POST request of registering a user, It takes in 
 # username, email and password and returns user details upon success.
@@ -29,7 +43,6 @@ class SignUp(generics.GenericAPIView):
         return Response(user_data, status=status.HTTP_201_CREATED)
     
 
-
 # LoginAPIView handles the POST request of logging in
 # a registered user with valid login credentials.
 class Login(generics.GenericAPIView):
@@ -39,3 +52,4 @@ class Login(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
