@@ -9,8 +9,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 # In project imports.
-from .serializers import SignUpSerializer, LoginSerializer
-from .models import User
+from .serializers import SignUpSerializer, LoginSerializer, StockUpScheduleSerializer
+from .models import User, StockUpSchedule
 
 
 # Create your views here.
@@ -52,4 +52,18 @@ class Login(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+
+class CreateStockUpSchedule(generics.CreateAPIView):
+    queryset = StockUpSchedule.objects.all()
+    serializer_class = StockUpScheduleSerializer
+
+
+class DeleteStockUpSchedule(generics.DestroyAPIView):
+    queryset = StockUpSchedule.objects.all()
+    serializer_class = StockUpScheduleSerializer
+
+
+class UpdateStockUpSchedule(generics.UpdateAPIView):
+    queryset = StockUpSchedule.objects.all()
+    serializer_class = StockUpScheduleSerializer

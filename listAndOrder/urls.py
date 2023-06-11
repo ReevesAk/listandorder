@@ -36,5 +36,5 @@ urlpatterns = [
     path('graeMart_api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('graeMart_api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('graeMart_api/v1/auth/', include('users.urls')),
-     path('graeMart_api/v1/profile/', include('vendor_profile.urls')),
+    path('graeMart_api/v1/profile/', include('vendor_profile.urls')),
 ]

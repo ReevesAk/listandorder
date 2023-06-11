@@ -29,3 +29,4 @@ class UpdateProfile(generics.UpdateAPIView):
 class ListAllProfiles(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    

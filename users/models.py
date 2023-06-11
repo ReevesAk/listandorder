@@ -35,7 +35,7 @@ class UserManager(BaseUserManager):
 # User describes the database model for each user.
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, db_index=True)
-    email = models.EmailField(max_length=255, unique=True, db_index=True)
+    email = models.EmailField(max_length=255, unique=True, db_index=True)    
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -50,3 +50,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+class StockUpSchedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    have_stock_up = models.BooleanField(default=False)
+    stock_up_duration = models.DurationField(blank=True)
+
+
+    def __str__(self):
+        return self.user
+    
+
+    def stock_up(self):
+        if self.stock_up_duration != None:
+            self.have_stock_up == True
+            return self.stock_up_duration

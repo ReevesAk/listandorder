@@ -2,7 +2,7 @@ import re
 
 from rest_framework import serializers
 
-from .models import User
+from .models import User, StockUpSchedule
 
 class SignUpSerializer(serializers.ModelSerializer):
     """ Serailizers for our User first time registration """
@@ -56,3 +56,11 @@ class LoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ['email','password']
 
+
+# StockUpScheduleSerializer is a serializer for schedule 
+# for product stockup.
+class StockUpScheduleSerializer(serializers.ModelSerializer):
+
+     class Meta:
+        model = StockUpSchedule
+        fields = ['id', 'have_stock_up', 'stock_up_duration']
