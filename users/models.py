@@ -1,55 +1,47 @@
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # Create your models here.
 
-# UserManager handles the creation of superuser as well as manage creation of user accounts.
-class UserManager(BaseUserManager):
 
-    def create_user(self, username, email, password=None, password2=None):
-        if username is None:
-            raise TypeError('Users should have a username')
-        if email is None:
-            raise TypeError('Users should have a Email')
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password, **extra_fields):
+        email = self.normalize_email(email)
 
-        user = self.model(
-            username=username, 
-            email=self.normalize_email(email),
-            )
+        user = self.model(email=email, **extra_fields)
+
         user.set_password(password)
+
         user.save()
+
         return user
 
-    def create_superuser(self, username, email, password=None):
-        if password is None:
-            raise TypeError('Password should not be none')
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
 
-        user = self.create_user(username, email, password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
-        return user
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser has to have is_staff being True")
+
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser has to have is_superuser being True")
+
+        return self.create_user(email=email, password=password, **extra_fields)
 
 
-# User describes the database model for each user.
-class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, unique=True, db_index=True)
-    email = models.EmailField(max_length=255, unique=True, db_index=True)    
-    is_verified = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
+class User(AbstractUser):
+    email = models.CharField(max_length=80, unique=True)
+    username = models.CharField(max_length=45)
+    date_of_birth = models.DateField(null=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
-    objects = UserManager()
+    objects = CustomUserManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
-        return self.email
+        return self.username
+    
 
 class StockUpSchedule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

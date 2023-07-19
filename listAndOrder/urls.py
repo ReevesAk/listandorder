@@ -33,12 +33,8 @@ urlpatterns = [
     # admin endpoint.
     path('admin/', admin.site.urls),
 
-    # authenticatiokn endpoint.
-    path('graeMart_api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('graeMart_api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('graeMart_api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('graeMart_api/v1/auth/', include('users.urls')),
     path('graeMart_api/v1/profile/', include('vendor_profile.urls')),
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
-               static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
+#                static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
