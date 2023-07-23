@@ -43,6 +43,12 @@ class User(AbstractUser):
         return self.username
     
 
+class SendMail(models.Model):
+    email = models.CharField(max_length=80, unique=True)
+    subject = models.CharField(max_length=150)
+    body = models.TextField()
+    
+
 class StockUpSchedule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     have_stock_up = models.BooleanField(default=False)

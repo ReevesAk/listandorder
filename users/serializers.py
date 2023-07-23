@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
 
-from .models import User, StockUpSchedule
+from .models import User, StockUpSchedule, SendMail
 
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=80)
@@ -59,6 +59,30 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ['email','password']
 
 
+class SendMailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SendMail
+        fiels = ['email', 'subject', 'body']
+
+    def validate(self, attrs):
+
+        email = attrs.get('email', '')
+
+        email_exists = User.objects.filter(email=attrs["email"]).exists()
+
+        if not email_exists:
+            raise ValidationError("Email is  not registered with us.")
+        
+        regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+        if re.fullmatch(regex, email) == None:
+            return serializers.ValidationError(
+                'email: email is not valid'
+            )
+
+        return super().validate(attrs)
+
+        
 # StockUpScheduleSerializer is a serializer for schedule 
 # for product stockup.
 class StockUpScheduleSerializer(serializers.ModelSerializer):

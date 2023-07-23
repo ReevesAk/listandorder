@@ -6,10 +6,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import SignUpSerializer, StockUpScheduleSerializer
+from .serializers import (SignUpSerializer, 
+    StockUpScheduleSerializer, SendMailSerializer
+)
 from .tokens import create_jwt_pair_for_user
-from .models import StockUpSchedule
-from .utils import send_email
+from .models import StockUpSchedule, User
+from .utils import send_email, generate_otp, verify_otp
 
 # Create your views here.
 
@@ -25,12 +27,14 @@ class SignUpView(generics.GenericAPIView):
         if serializer.is_valid():
             serializer.save()
 
+            global otp
+            otp = generate_otp()
             sender = config('EMAIL_HOST_USER')
             app_password = config('EMAIL_HOST_PASSWORD')
             mail_data = {
                 "email": [request.data.get("email")],
                 "subject":  "Verify your Email",
-                "body": "Use this OTP to verify your account",
+                "body": "Use this {}, to verify your account".format(otp),
                 "sender": sender,
                 "password": app_password,
             }
@@ -73,7 +77,55 @@ class LoginView(APIView):
         content = {"user": str(request.user), "auth": str(request.auth)}
 
         return Response(data=content, status=status.HTTP_200_OK)
-    
+
+
+class VerifyOTP(APIView):
+    permission_classes = []
+
+    def post(self, request: Request):
+        received_otp = request.data.get("otp")
+
+        is_valid = verify_otp(otp_receieved=received_otp, otp_sent=otp)
+
+        if is_valid == True:
+            return Response(data={"message": "Email Verification successful!"})
+        
+        else: 
+            return Response(data={"message": "Invalid or expired otp"})
+
+
+
+class SendMail(APIView):
+    serializer_class = SendMailSerializer
+    permission_classes = []
+
+    def post(self, request: Request):
+        data = request.data
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid():   
+
+            email = request.data.get("email")
+            subject = request.data.get("subject")
+            body = request.data.get("body")
+
+            # Host email login credentials
+            sender = config('EMAIL_HOST_USER')
+            app_password = config('EMAIL_HOST_PASSWORD')
+
+            send_email(
+                subject=subject,
+                body=body,
+                sender=sender,
+                recipients=email,
+                password=app_password
+            )
+
+            return Response(data={"message": "Email Verification successful!"})
+        
+        return Response(data={"message": "Could not send email"})
+
 
 
 class CreateStockUpSchedule(generics.CreateAPIView):
