@@ -32,6 +32,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = models.CharField(max_length=80, unique=True)
+    is_verified = models.BooleanField(default=False)
     username = models.CharField(max_length=45)
     date_of_birth = models.DateField(null=True)
 

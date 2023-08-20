@@ -13,7 +13,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "username", "password"]
+        fields = ["email", "username", "password", "is_verified"]
 
     def validate(self, attrs):
 
@@ -63,7 +63,7 @@ class SendMailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SendMail
-        fiels = ['email', 'subject', 'body']
+        fields = ['email', 'subject', 'body']
 
     def validate(self, attrs):
 
@@ -90,3 +90,8 @@ class StockUpScheduleSerializer(serializers.ModelSerializer):
      class Meta:
         model = StockUpSchedule
         fields = ['id', 'have_stock_up', 'stock_up_duration']
+
+
+class OTPSerializer(serializers.Serializer):
+    otp = serializers.EmailField(max_length=6)
+    

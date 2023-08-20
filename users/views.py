@@ -1,4 +1,6 @@
 from decouple import config
+import threading as th
+import time
 
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
@@ -11,9 +13,11 @@ from .serializers import (SignUpSerializer,
 )
 from .tokens import create_jwt_pair_for_user
 from .models import StockUpSchedule, User
-from .utils import send_email, generate_otp, verify_otp
+from .utils import send_email
+from .otp import otp_manager
 
 # Create your views here.
+
 
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer
@@ -27,8 +31,9 @@ class SignUpView(generics.GenericAPIView):
         if serializer.is_valid():
             serializer.save()
 
-            global otp
-            otp = generate_otp()
+            otp = otp_manager.create_otp(user_id=str(request.data.get('id')))
+            print(otp)
+
             sender = config('EMAIL_HOST_USER')
             app_password = config('EMAIL_HOST_PASSWORD')
             mail_data = {
@@ -47,11 +52,33 @@ class SignUpView(generics.GenericAPIView):
                 password=mail_data["password"]
             )
 
-            response = {"message": "User Created Successfully. An OTP has been sent to you mail for verification", "data": serializer.data}
+            response = {"message": "User Created Successfully. An OTP has been sent to your mail for verification", "data": serializer.data}
 
             return Response(data=response, status=status.HTTP_201_CREATED)
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyOTP(APIView):
+    permission_classes = []
+
+    def post(self, request: Request):
+        data = request.data
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid():
+            received_otp = request.data.get("otp")
+
+            user_id = otp_manager.validate_user_otp(str(received_otp))
+            if not user_id:
+                return Response(data={"message": "Invalid or expired otp"})
+            
+            user = User.objects.get(id=user_id)
+            user.is_verified = True
+            user.save()
+
+        return Response(data={"message": "Email Verification successful!"})
 
 
 class LoginView(APIView):
@@ -77,22 +104,6 @@ class LoginView(APIView):
         content = {"user": str(request.user), "auth": str(request.auth)}
 
         return Response(data=content, status=status.HTTP_200_OK)
-
-
-class VerifyOTP(APIView):
-    permission_classes = []
-
-    def post(self, request: Request):
-        received_otp = request.data.get("otp")
-
-        is_valid = verify_otp(otp_receieved=received_otp, otp_sent=otp)
-
-        if is_valid == True:
-            return Response(data={"message": "Email Verification successful!"})
-        
-        else: 
-            return Response(data={"message": "Invalid or expired otp"})
-
 
 
 class SendMail(APIView):
