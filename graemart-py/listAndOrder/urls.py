@@ -33,8 +33,14 @@ urlpatterns = [
     # admin endpoint.
     path('admin/', admin.site.urls),
 
+    # auth endpoints.
     path('graeMart_api/v1/auth/', include('users.urls')),
+
+    # profile endpoints.
     path('graeMart_api/v1/profile/', include('vendor_profile.urls')),
+
+    # support endpoints.
+    path('graeMart_api/v1/suport/', include('support.urls')),
 ]
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
 #                static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

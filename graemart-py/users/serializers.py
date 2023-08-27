@@ -82,7 +82,7 @@ class SendMailSerializer(serializers.ModelSerializer):
 
         return super().validate(attrs)
 
-        
+
 # StockUpScheduleSerializer is a serializer for schedule 
 # for product stockup.
 class StockUpScheduleSerializer(serializers.ModelSerializer):

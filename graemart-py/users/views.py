@@ -1,12 +1,13 @@
 from decouple import config
-import threading as th
-import time
 
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (SignUpSerializer, 
     StockUpScheduleSerializer, SendMailSerializer
@@ -108,7 +109,7 @@ class LoginView(APIView):
 
 class SendMail(APIView):
     serializer_class = SendMailSerializer
-    permission_classes = []
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request: Request):
         data = request.data
@@ -137,6 +138,20 @@ class SendMail(APIView):
         
         return Response(data={"message": "Could not send email"})
 
+
+class Logout(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": e})
 
 
 class CreateStockUpSchedule(generics.CreateAPIView):

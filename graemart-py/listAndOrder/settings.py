@@ -59,13 +59,13 @@ INSTALLED_APPS = [
     'users',
     'vendor_profile',
     'checkout',
+    'support',
 
     # Thrid party apps.
     'drf_spectacular',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
-
 ]
 
 MIDDLEWARE = [
